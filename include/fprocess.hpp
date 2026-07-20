@@ -141,15 +141,15 @@ inline FileType get_generic_file_type(const fs::path& fpath) {
         if (fext == ".exe") return FileType::kExecutable;
         if (fext.empty()) {
             // On UNIX-like systems, executables may come without an extension
-            auto permissions = fs::status(fpath).permissions();
-            if ((permissions & fs::perms::owner_exec) != fs::perms::none ||
+            if (const auto permissions = fs::status(fpath).permissions();
+                (permissions & fs::perms::owner_exec) != fs::perms::none ||
                 (permissions & fs::perms::group_exec) != fs::perms::none ||
                 (permissions & fs::perms::others_exec) != fs::perms::none) {
                 return FileType::kExecutable;
             }
             return FileType::kUnrecognized;
         }
-    } catch (const fs::filesystem_error& error) {
+    } catch ([[maybe_unused]] const fs::filesystem_error& error) {
         return FileType::kFailed;
     }
     return FileType::kUnrecognized; // fallback
@@ -158,13 +158,14 @@ inline FileType get_generic_file_type(const fs::path& fpath) {
 // Returns the description of given file according to its extension.
 inline std::string get_file_type_desc(const fs::path& fpath) {
     try {
-        std::string fext = fpath.extension().string();
+        const std::string fext = fpath.extension().string();
         std::string query_res = fext.substr(1) + " File";
         // Find description in the map
-        auto fiter = extensions_map.find(fext);
-        if (fiter != extensions_map.end()) query_res = fiter->second;
+        if (const auto fiter = extensions_map.find(fext);
+            fiter != extensions_map.end())
+            query_res = fiter->second;
         return query_res;
-    } catch (const fs::filesystem_error& error) {
+    } catch ([[maybe_unused]] const fs::filesystem_error& error) {
         return "Process Failed";
     }
 }
@@ -188,9 +189,8 @@ inline std::vector<FileEntry> get_dir_content(const fs::path& dirpath) {
 
                 // Get file name and type
                 fentry_stat.fname = fentry.path().filename().string();
-                auto ftype = get_generic_file_type(fentry.path());
                 // I think there is no need to add comments for this part though!
-                switch (ftype) {
+                switch (get_generic_file_type(fentry.path())) {
                     case FileType::kDir: {
                         fentry_stat.ftype = "Directory";
                         fentry_stat.is_directory = true;
@@ -263,7 +263,7 @@ inline std::vector<FileEntry> get_dir_content(const fs::path& dirpath) {
             [](const FileEntry& fobj_a, const FileEntry& fobj_b) {
                 return fobj_a < fobj_b;
             });
-    } catch (const fs::filesystem_error& error) {
+    } catch ([[maybe_unused]] const fs::filesystem_error& error) {
         std::cerr << "Errors occurred when trying to parse.\n";
     }
     return file_entries;
