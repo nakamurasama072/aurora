@@ -11,4 +11,5 @@ add_executable(justore
         src/justore.cpp
         include/config.h
         include/fprocess.hpp
+        include/external/crow/crow_all.h
 )
