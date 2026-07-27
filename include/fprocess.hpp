@@ -6,7 +6,7 @@
 #define JUSTORE_FPROCESS_HPP
 
 #include <config.h>
-#include <map>
+#include <unordered_map>
 #include <sstream>
 #include <vector>
 #include <optional>
@@ -26,7 +26,7 @@ enum class FileType {
 };
 
 // A map of extensions and corresponding file types
-inline std::map<std::string, std::string> extensions_map = {
+inline const std::unordered_map<std::string, std::string> extensions_map = {
     // Compressed Archives
     {".zip", "ZIP Compressed File"},
     {".tar","Tarball Archive"},
@@ -244,10 +244,13 @@ inline std::vector<FileEntry> get_dir_content(const fs::path& dirpath) {
                         ftime - fs::file_time_type::clock::now() + std::chrono::system_clock::now()
                     );
                 std::time_t tt = std::chrono::system_clock::to_time_t(sctp);
-                tm *local_time = std::localtime(&tt);
+                std::tm local_time;
+                if (localtime_r(&tt, &local_time) == nullptr) {
+                    throw std::runtime_error("Failed to get local time!");
+                }
                 // Convert to string
                 std::ostringstream time_oss;
-                time_oss << std::put_time(local_time, "%Y-%m-%d %H:%M:%S");
+                time_oss << std::put_time(&local_time, "%Y-%m-%d %H:%M:%S");
                 fentry_stat.last_modified = time_oss.str();
 
                 // last of assembly line: insert
