@@ -11,7 +11,9 @@
 #include <algorithm>
 
 namespace fs = std::filesystem;
-
+// Disk Root
+inline const fs::path kNetDiskRoot = "./";
+// Add other constants here...
 
 
 #endif //JUSTORE_CONFIG_H

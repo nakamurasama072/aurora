@@ -232,9 +232,9 @@ inline std::vector<FileEntry> get_dir_content(const fs::path& dirpath) {
                 }
 
                 // Get file size
-                // On UNIX systems, folders will take a block
+                // On UNIX systems, folders will take a block, but recognized as a size of 0
                 if (fs::is_directory(fentry.path()))
-                    fentry_stat.fsize = 4096;
+                    fentry_stat.fsize = 0;
                 else
                     fentry_stat.fsize = fs::file_size(fentry.path());
 
@@ -270,6 +270,26 @@ inline std::vector<FileEntry> get_dir_content(const fs::path& dirpath) {
         std::cerr << "Errors occurred when trying to parse.\n";
     }
     return file_entries;
+}
+
+// Resolve user path
+inline std::optional<fs::path> resolve_path(const std::string& request_path) {
+    try {
+        fs::path root_path = fs::weakly_canonical(kNetDiskRoot);
+        fs::path target_path = fs::weakly_canonical(root_path / request_path);
+
+        // Validation: Make sure no path traversal attack happened
+        fs::path relative_path_to_root = fs::relative(target_path, root_path);
+        if (!relative_path_to_root.empty() && *relative_path_to_root.begin() == "..") {
+            throw std::runtime_error("Path traversal attack detected: " + request_path + "\n");
+        }
+        return target_path;
+    } catch (fs::filesystem_error& ferror) {
+        std::cerr << "Filesystem Errors occurred when resolving path: " << ferror.what() << "\n";
+    } catch (std::exception& stderr) {
+        std::cerr << "Errors occurred when resolving path: " << stderr.what() << "\n";
+    }
+    return std::nullopt;
 }
 
 #endif //JUSTORE_FPROCESS_HPP
