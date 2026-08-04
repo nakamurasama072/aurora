@@ -286,8 +286,8 @@ inline std::optional<fs::path> resolve_path(const std::string& request_path) {
         return target_path;
     } catch (fs::filesystem_error& ferror) {
         std::cerr << "Filesystem Errors occurred when resolving path: " << ferror.what() << "\n";
-    } catch (std::exception& stderr) {
-        std::cerr << "Errors occurred when resolving path: " << stderr.what() << "\n";
+    } catch (std::exception& std_err) {
+        std::cerr << "Errors occurred when resolving path: " << std_err.what() << "\n";
     }
     return std::nullopt;
 }
