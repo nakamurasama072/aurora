@@ -56,8 +56,8 @@ inline crow::response CrowRestAPI::handle_file_browse(const crow::request & requ
     // crow::response response;
 
     // Resolve and validate the requested path
-    std::string request_path = path_params ? path_params : "";
-    auto resolved_req_path = resolve_path(request_path);
+    const std::string request_path = path_params ? path_params : "";
+    const auto resolved_req_path = resolve_path(request_path);
     if (!resolved_req_path) { // is nullptr
         response_json["success"] = false;
         response_json["message"] = "Forbidden operation (path traversal attack) detected";
@@ -65,7 +65,10 @@ inline crow::response CrowRestAPI::handle_file_browse(const crow::request & requ
     }
 
     // If resolve succeeded, read the directory
-    auto files = get_dir_content(*resolved_req_path);
+    const auto files = get_dir_content(*resolved_req_path);
+    std::cout << "Number of files found: "
+          << files.size()
+          << "\n";
     response_json["success"] = true;
     response_json["path"] = request_path;
     response_json["message"] = "Fetch success";
@@ -91,19 +94,31 @@ inline void CrowRestAPI::register_api_routes() const {
 
 // Create a json containing metadata of a given file
 inline crow::json::wvalue CrowRestAPI::create_fentry_json(const FileEntry &fentry) {
+    std::cout << "Creating JSON for: "
+              << fentry.fname
+              << "\n";
     crow::json::wvalue fjson;
 
+    std::cout << "name detected...\n";
     fjson["name"] = fentry.fname;
+    std::cout << "file type detected...\n";
     fjson["type"] = fentry.ftype;
+    std::cout << "file size detected...\n";
     fjson["size"] = fentry.fsize;
+    std::cout << "last modified time detected...\n";
     fjson["last_modified"] = fentry.last_modified;
+    std::cout << "is_directory detected...\n";
     fjson["directory"] = fentry.is_directory;
+    std::cout << "is_symlink detected...\n";
     fjson["symlink"] = fentry.is_symlink;
+    std::cout << "is_hard_link detected...\n";
     fjson["hard_link"] = fentry.is_hard_link;
     // link target may be nullptr
-    if (fentry.link_target)
+    if (fentry.link_target) {
+        std::cout << "hard link target detected...\n";
         fjson["target"] = *fentry.link_target;
-
+    }
+    std::cout << "JSON creation succeeded. Finalizing results...\n";
     return fjson;
 }
 

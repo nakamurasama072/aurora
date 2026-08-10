@@ -102,7 +102,7 @@ struct FileEntry {
     bool is_directory = false; // flag to mark if the file is a directory
     bool is_symlink = false; // flag to mark if the file is a symlink
     bool is_hard_link = false; // flag to mark if the file is a hard link
-    std::optional<std::string> link_target = nullptr; // target of a SYMLINK
+    std::optional<std::string> link_target; // target of a SYMLINK
 
     // Overloading "<" operator (dir-type first, dict order afterward)
     bool operator<(const FileEntry& other) const {
@@ -115,57 +115,73 @@ struct FileEntry {
 // Returns the GENERIC type of given file.
 inline FileType get_generic_file_type(const fs::path& fpath) {
     try {
+        std::cout << "Trying to look at " << fpath << "...\n";
         // Symbolic Link
         if (fs::is_symlink(fpath)) {
+            std::cout << "Symlink detected.\n";
             return FileType::kSymLink;
-        }
-
-        // Regular File and Hard Link
-        if (fs::is_regular_file(fpath)) {
-            if (fs::hard_link_count(fpath) > 1) {
-                // Hard Link
-                return FileType::kLink;
-            }
-            // Regular File
-            return FileType::kRegular;
         }
 
         // Directory
         if (fs::is_directory(fpath)) {
+            std::cout << "The file is in fact a directory.\n";
             return FileType::kDir;
         }
 
         // Executable
         const std::string fext = fpath.extension().string();
         // For Windows, the executable file is "xxx.exe"
-        if (fext == ".exe") return FileType::kExecutable;
-        if (fext.empty()) {
+        if (fext == ".exe") {
+            std::cout << "Windows executable file detected.\n";
+            return FileType::kExecutable;
+        } if (fext.empty()) {
             // On UNIX-like systems, executables may come without an extension
             if (const auto permissions = fs::status(fpath).permissions();
                 (permissions & fs::perms::owner_exec) != fs::perms::none ||
                 (permissions & fs::perms::group_exec) != fs::perms::none ||
                 (permissions & fs::perms::others_exec) != fs::perms::none) {
+                std::cout << "*nix executable file detected.\n";
                 return FileType::kExecutable;
             }
+            std::cerr << "Unable to recognize file type.\n";
             return FileType::kUnrecognized;
         }
+
+        // Regular File and Hard Link
+        if (fs::is_regular_file(fpath)) {
+            if (fs::hard_link_count(fpath) > 1) {
+                std::cout << "Hard link detected.\n";
+                // Hard Link
+                return FileType::kLink;
+            }
+            // Regular File
+            std::cout << "This may be a regular file. Further investigations will be conducted.\n";
+            return FileType::kRegular;
+        }
     } catch ([[maybe_unused]] const fs::filesystem_error& error) {
+        std::cerr << "Failed to process path. Skipping it.\n";
         return FileType::kFailed;
     }
+    std::cerr << "Unable to recognize file type.\n";
     return FileType::kUnrecognized; // fallback
 }
 
 // Returns the description of given file according to its extension.
 inline std::string get_file_type_desc(const fs::path& fpath) {
     try {
+        std::cout << "Trying to look at " << fpath << " for file type description...\n";
         const std::string fext = fpath.extension().string();
+        std::cout << "The file extension is: " << fext << "\n";
         std::string query_res = fext.substr(1) + " File";
+        std::cout << "Attempting to map executable with stored map...\n";
         // Find description in the map
         if (const auto fiter = extensions_map.find(fext);
             fiter != extensions_map.end())
             query_res = fiter->second;
+        std::cout << "Type found! That is " << query_res << ".\n";
         return query_res;
     } catch ([[maybe_unused]] const fs::filesystem_error& error) {
+        std::cerr << "Failed to process path. Skipping it.\n";
         return "Process Failed";
     }
 }
@@ -174,24 +190,32 @@ inline std::string get_file_type_desc(const fs::path& fpath) {
 inline std::vector<FileEntry> get_dir_content(const fs::path& dirpath) {
     std::vector<FileEntry> file_entries;
     try {
+        std::cout << "Detecting " << dirpath << "...\n";
         // Check existence
         if (!fs::exists(dirpath) || !fs::is_directory(dirpath)) {
             std::cerr << "The path is not a directory or does not exist.\n";
             return file_entries;
         }
+        std::cout << "Path existence validation succeeded. Trying to list all file entries...\n";
 
         // List all file entries
         fs::directory_iterator fiter(dirpath);
-        std::cout << "File Path\tFile Type\n";
+        std::cout << "Directory Iterator created. Proceeding...\n";
+        //std::cout << "File Path\tFile Type\n";
         for (const auto& fentry : fiter) {
+            std::cout << "Entered one iteration. Now trying to fetch file metadata...\n";
             try {
                 FileEntry fentry_stat;
 
                 // Get file name and type
+                std::cout << "Fetching file name...\n";
                 fentry_stat.fname = fentry.path().filename().string();
+                std::cout << "File name is " << fentry_stat.fname << "\n";
+                std::cout << "Trying to get file type...\n";
                 // I think there is no need to add comments for this part though!
                 switch (get_generic_file_type(fentry.path())) {
                     case FileType::kDir: {
+                        std::cout << "The file is a directory\n";
                         fentry_stat.ftype = "Directory";
                         fentry_stat.is_directory = true;
                         break;
@@ -201,38 +225,48 @@ inline std::vector<FileEntry> get_dir_content(const fs::path& dirpath) {
                         fentry_stat.is_symlink = true;
                         try {
                             fentry_stat.link_target = fs::read_symlink(fentry.path()).string();
+                            std::cout << "The file is a symlink. Target: " << fentry_stat.link_target.value_or("N/A") << "\n";
                         } catch (...) {
                             throw std::runtime_error("Failed to get target of symlink");
                         }
                         break;
                     }
                     case FileType::kExecutable: {
+                        std::cout << "The file is an executable file\n";
                         fentry_stat.ftype = "Executable File";
                         break;
                     }
                     case FileType::kLink: {
+                        std::cout << "The file is a hard link\n";
                         fentry_stat.ftype = "Hard Link";
                         fentry_stat.is_hard_link = true;
                         break;
                     }
                     case FileType::kUnrecognized: {
+                        std::cout << "The file type is not yet recognized...\n";
                         fentry_stat.ftype = "Unrecognized";
                         break;
                     }
                     case FileType::kFailed: {
+                        std::cerr << "Failed to process file metadata!\n";
                         throw std::runtime_error("Failed to process file metadata!");
                     }
                     case FileType::kRegular: {
+                        std::cout << "The file is a regular file. Detecting its specific type...\n";
                         auto type_desc = get_file_type_desc(fentry.path());
-                        if (type_desc == "Process Failed")
+                        if (type_desc == "Process Failed") {
+                            std::cerr << "Failed to get type description!\n";
                             throw std::runtime_error("Failed to get type description!");
+                        }
                         fentry_stat.ftype = type_desc;
+                        std::cout << "Specific file type detected: " << fentry_stat.ftype << "\n";
                         break;
                     }
                 }
 
                 // Get file size
                 // On UNIX systems, folders will take a block, but recognized as a size of 0
+                std::cout << "";
                 if (fs::is_directory(fentry.path()))
                     fentry_stat.fsize = 0;
                 else
@@ -255,9 +289,10 @@ inline std::vector<FileEntry> get_dir_content(const fs::path& dirpath) {
 
                 // last of assembly line: insert
                 file_entries.push_back(fentry_stat);
-            } catch (...) {
-                // std::cerr << "Failed to list file entry, passing it.\n";
-                // continue;
+            } catch (const std::runtime_error& rerr) {
+                std::cerr << "Failed to list file entry, passing it.\n";
+                std::cerr << "Error message: " << rerr.what() << "\n";
+                continue;
             }
         }
 
@@ -275,12 +310,17 @@ inline std::vector<FileEntry> get_dir_content(const fs::path& dirpath) {
 // Resolve user path
 inline std::optional<fs::path> resolve_path(const std::string& request_path) {
     try {
+        std::cout << "Currently resolving path: " << request_path << "...\n";
         fs::path root_path = fs::weakly_canonical(kNetDiskRoot);
+        std::cout << "Root path is: " << root_path << "\n";
         fs::path target_path = fs::weakly_canonical(root_path / request_path);
+        std::cout << "Expected (in theory) target path is: " << target_path << "\n";
 
         // Validation: Make sure no path traversal attack happened
         fs::path relative_path_to_root = fs::relative(target_path, root_path);
+        std::cout << "Attempting to print relative path: " << relative_path_to_root << "\n";
         if (!relative_path_to_root.empty() && *relative_path_to_root.begin() == "..") {
+            std::cerr << "There is a path traversal attack. Please report it to the security personnel.\n";
             throw std::runtime_error("Path traversal attack detected: " + request_path + "\n");
         }
         return target_path;
