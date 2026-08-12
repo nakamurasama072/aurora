@@ -128,25 +128,6 @@ inline FileType get_generic_file_type(const fs::path& fpath) {
             return FileType::kDir;
         }
 
-        // Executable
-        const std::string fext = fpath.extension().string();
-        // For Windows, the executable file is "xxx.exe"
-        if (fext == ".exe") {
-            std::cout << "Windows executable file detected.\n";
-            return FileType::kExecutable;
-        } if (fext.empty()) {
-            // On UNIX-like systems, executables may come without an extension
-            if (const auto permissions = fs::status(fpath).permissions();
-                (permissions & fs::perms::owner_exec) != fs::perms::none ||
-                (permissions & fs::perms::group_exec) != fs::perms::none ||
-                (permissions & fs::perms::others_exec) != fs::perms::none) {
-                std::cout << "*nix executable file detected.\n";
-                return FileType::kExecutable;
-            }
-            std::cerr << "Unable to recognize file type.\n";
-            return FileType::kUnrecognized;
-        }
-
         // Regular File and Hard Link
         if (fs::is_regular_file(fpath)) {
             if (fs::hard_link_count(fpath) > 1) {
@@ -154,6 +135,24 @@ inline FileType get_generic_file_type(const fs::path& fpath) {
                 // Hard Link
                 return FileType::kLink;
             }
+
+            // Executable
+            const std::string fext = fpath.extension().string();
+            // For Windows, the executable file is "xxx.exe"
+            if (fext == ".exe") {
+                std::cout << "Windows executable file detected.\n";
+                return FileType::kExecutable;
+            } if (fext.empty()) {
+                // On UNIX-like systems, executables may come without an extension
+                if (const auto permissions = fs::status(fpath).permissions();
+                    (permissions & fs::perms::owner_exec) != fs::perms::none ||
+                    (permissions & fs::perms::group_exec) != fs::perms::none ||
+                    (permissions & fs::perms::others_exec) != fs::perms::none) {
+                    std::cout << "*nix executable file detected.\n";
+                    return FileType::kExecutable;
+                }
+            }
+
             // Regular File
             std::cout << "This may be a regular file. Further investigations will be conducted.\n";
             return FileType::kRegular;
@@ -170,15 +169,48 @@ inline FileType get_generic_file_type(const fs::path& fpath) {
 inline std::string get_file_type_desc(const fs::path& fpath) {
     try {
         std::cout << "Trying to look at " << fpath << " for file type description...\n";
-        const std::string fext = fpath.extension().string();
-        std::cout << "The file extension is: " << fext << "\n";
-        std::string query_res = fext.substr(1) + " File";
-        std::cout << "Attempting to map executable with stored map...\n";
-        // Find description in the map
-        if (const auto fiter = extensions_map.find(fext);
-            fiter != extensions_map.end())
-            query_res = fiter->second;
-        std::cout << "Type found! That is " << query_res << ".\n";
+        std::string matched_ext;
+        const std::string filename = fpath.filename().string();
+
+        // Perform LONGEST matching rule, not using .extension() function.
+        for (const auto& [ext_key, desc_val] : extensions_map) {
+            if (filename.size() >= ext_key.size() && !filename.compare(
+                    filename.size() - ext_key.size(),
+                    ext_key.size(), ext_key)) {
+                // longest extension (like .tar.gz, .tar.xz, etc.)
+                if (ext_key.size() > matched_ext.size())
+                    matched_ext = ext_key;
+            }
+        }
+
+        std::string query_res;
+        // Found extension, then for its matching description
+        if (!matched_ext.empty()) {
+            // Find description in the map
+            if (const auto fiter = extensions_map.find(matched_ext);
+                fiter != extensions_map.end()) {
+                query_res = fiter->second;
+                std::cout << "The file extension is: " << matched_ext << "\n";
+                std::cout << "Attempting to map executable with stored map...\n";
+                std::cout << "Type found! That is " << query_res << ".\n";
+            }
+        } else {
+            // Fallback part for files without a recorded/recognized extension
+            const std::string fext = fpath.extension().string();
+            std::string prefix;
+
+            // Cannot recognize extension, fallback
+            if (fext.empty()) {
+                std::cout << "File extension temporarily not available.\n";
+                prefix = "Regular";
+            } else {
+                prefix = fext.substr(1);
+                prefix[0] -= 32; // Make the first letter uppercase
+                std::cout << "Extension \"" << fext << "\" is not recognized. "
+                             "The format will be \"" << prefix << " File\" instead.\n";
+            }
+            query_res = prefix + " File";
+        }
         return query_res;
     } catch ([[maybe_unused]] const fs::filesystem_error& error) {
         std::cerr << "Failed to process path. Skipping it.\n";
