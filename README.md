@@ -64,7 +64,7 @@ Please rest assured that the version of Angular will be updated to latest in eve
 Configure and build the C++ server from the repository root:
 
 ```bash
-cmake -S . -B build
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
 

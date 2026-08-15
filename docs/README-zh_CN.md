@@ -64,7 +64,7 @@ Aurora Drive 可以不使用前端部署，但最低要求会有所不同。
 在仓库根目录配置并构建 C++ 服务器：
 
 ```bash
-cmake -S . -B build
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
 

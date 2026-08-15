@@ -64,7 +64,7 @@ Angular は各リリースビルドで最新バージョンに更新されます
 リポジトリのルートから C++ サーバーを構成してビルドします。
 
 ```bash
-cmake -S . -B build
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
 
