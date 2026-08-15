@@ -19,7 +19,7 @@ inline std::optional<DiskSpace> get_disk_space() {
     // total and available
     try {
         DiskSpace space_info{};
-        std::cout << "Detecting the total and available space of path \"" << kNetDiskRoot << "\"...\n";
+        std::cout << "Detecting the total and available space of path " << kNetDiskRoot << "...\n";
         fs::space_info fsiobj = fs::space(kNetDiskRoot);
         space_info.total = fsiobj.capacity;
         std::cout << "The disk capacity is " << fsiobj.capacity << " Bytes\n";
