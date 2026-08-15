@@ -1,3 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+app-root .workspace { display: flex; flex-direction: column; }
+app-root .content-area { flex: 1; }
+app-root .workspace-footer { width: min(1200px, 100%); margin: auto auto 0; padding: 20px 54px 24px; border-top: 1px solid rgb(120 168 205 / 24%); color: var(--muted); font-size: 11px; line-height: 1.5; }
+app-root .workspace-footer p { margin: 0; }
+app-root .workspace-footer p + p { margin-top: 4px; }
+app-root .built-with { display: flex; align-items: center; gap: 6px; color: #587892; }
+app-root .angular-brand { display: inline-flex; align-items: center; gap: 4px; color: #dd0031; font-family: Arial, sans-serif; font-size: 14px; font-weight: 700; line-height: 1; }
+app-root .angular-brand svg { width: 17px; height: 18px; display: block; }
+app-root .evernight .workspace-footer { border-color: rgb(255 191 193 / 14%); color: #e6afb2; }
+app-root .evernight .built-with { color: #efbcc0; }
+
+@media (max-width: 620px) {
+	app-root .workspace-footer { padding: 18px 16px 22px; }
+}
