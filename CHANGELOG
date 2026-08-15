@@ -1,0 +1,23 @@
+# Changelog
+
+All notable changes to Aurora Drive are documented in this file.
+
+## [0.1.0] - 2026-08-15
+
+Initial alpha release of Aurora Drive.
+
+### Added
+
+- A C++17 server built with CMake and the bundled Crow web framework.
+- `GET /api/files` for browsing the configured storage root and its child directories.
+- Directory entry metadata, including file type, size, last-modified time, and symbolic-link or hard-link information.
+- Directory-first, name-based ordering for browse results.
+- Filesystem path resolution that blocks requests escaping the configured storage root.
+- `GET /api/system/storage` for reporting the total and available bytes of the storage filesystem.
+- An Angular web client with API-backed file listing and storage usage, locale selection, and Aurora/Evernight themes.
+- Development proxy configuration that forwards the web client's `/api` requests to the backend on port `12384`.
+
+### Known limitations
+
+- The storage root is the server process working directory.
+- Authentication, file upload and download, directory creation, file mutation, sharing, and persistent favorites or trash are not implemented in the backend yet.

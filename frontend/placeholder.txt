@@ -1,3 +1,0 @@
-This file only serves as a placeholder for the choose of frontend frameworks.
-
-Angular or Vue.js may be used in this case.

@@ -9,3 +9,6 @@ of implementation.
 However, for frontend (located at `./frontend`), the use of AI is allowed and
 the user can use Agents to write JavaScript/TypeScript, create artworks as well
 as use external skills (for coding and design, etc.) if he/she wish.
+
+PS: The use of AI for writing documents are allowed; however, the agent must 
+notify the user to review the docs by himself/herself.
