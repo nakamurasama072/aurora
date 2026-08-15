@@ -97,13 +97,13 @@ npm run build
 
 ## About the releases...
 
-Each release and pre-release (beta, rc.N) only contains the pre-built backend binary package. They would follow such naming:
+Each release and pre-release (beta, rcN) only contains the pre-built backend binary package. They would follow such naming:
 - aurora_PLATFORM_ARCH_VERSION
 
 In this case:
 - PLATFORM: C library implementations. Mostly glibc and musl-libc.
-- ARCH: The architecture used by the host, such as i386, x86_64, aarch64, risc-v.
-- VERSION: The version number, following X.Y.Z SemVer2 format. For pre-releases, the suffixes (`-beta`, `-rc.N`) will be simply appended.
+- ARCH: The architecture used by the host, such as i386, x86-64, aarch64, risc-v.
+- VERSION: The version number, following X.Y.Z SemVer2 format. For pre-releases, the suffixes (`-beta`, `-rcN`) will be simply appended.
 
 Docker and podman images are on the way and expected to be available from 1.0.0 afterwards.
 

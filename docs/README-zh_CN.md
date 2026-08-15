@@ -97,13 +97,13 @@ npm run build
 
 ## 关于发布版本
 
-每个正式版本和预发布版本（beta、rc.N）只包含预构建的后端二进制包，命名格式如下：
+每个正式版本和预发布版本（beta、rcN）只包含预构建的后端二进制包，命名格式如下：
 - `aurora_PLATFORM_ARCH_VERSION`
 
 其中：
 - `PLATFORM`：C 标准库实现，主要为 glibc 和 musl-libc.
-- `ARCH`：宿主机使用的架构，例如 i386、x86_64、aarch64、risc-v.
-- `VERSION`：遵循 X.Y.Z（SemVer2 格式）版本号。对于预发布版本，将直接添加修饰后缀（`-beta`、`-rc.N`）。
+- `ARCH`：宿主机使用的架构，例如 i386、x86-64、aarch64、risc-v.
+- `VERSION`：遵循 X.Y.Z（SemVer2 格式）版本号。对于预发布版本，将直接添加修饰后缀（`-beta`、`-rcN`）。
 
 Docker 和 Podman 镜像正在规划中，预计自 1.0.0 起提供。
 
