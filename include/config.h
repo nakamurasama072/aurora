@@ -16,8 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef JUSTORE_CONFIG_H
-#define JUSTORE_CONFIG_H
+#ifndef AURORA_CONFIG_H
+#define AURORA_CONFIG_H
 
 #include <iostream>
 #include <string>
@@ -31,4 +31,4 @@ inline const fs::path kNetDiskRoot = "./";
 // Add other constants here...
 
 
-#endif //JUSTORE_CONFIG_H
+#endif //AURORA_CONFIG_H

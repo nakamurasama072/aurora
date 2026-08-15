@@ -16,8 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef JUSTORE_RESTAPI_HPP
-#define JUSTORE_RESTAPI_HPP
+#ifndef AURORA_RESTAPI_HPP
+#define AURORA_RESTAPI_HPP
 
 #include <fprocess.hpp>
 #include <sysutils.hpp>
@@ -164,4 +164,4 @@ inline crow::json::wvalue CrowRestAPI::create_fentry_json(const FileEntry &fentr
     return fjson;
 }
 
-#endif //JUSTORE_RESTAPI_HPP
+#endif //AURORA_RESTAPI_HPP

@@ -16,8 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef JUSTORE_FPROCESS_HPP
-#define JUSTORE_FPROCESS_HPP
+#ifndef AURORA_FPROCESS_HPP
+#define AURORA_FPROCESS_HPP
 
 #include <config.h>
 #include <unordered_map>
@@ -378,4 +378,4 @@ inline std::optional<fs::path> resolve_path(const std::string& request_path) {
     return std::nullopt;
 }
 
-#endif //JUSTORE_FPROCESS_HPP
+#endif //AURORA_FPROCESS_HPP

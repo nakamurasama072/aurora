@@ -16,8 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef JUSTORE_SYSUTILS_HPP
-#define JUSTORE_SYSUTILS_HPP
+#ifndef AURORA_SYSUTILS_HPP
+#define AURORA_SYSUTILS_HPP
 
 #include <config.h>
 #include <optional>
@@ -47,4 +47,4 @@ inline std::optional<DiskSpace> get_disk_space() {
     }
 }
 
-#endif //JUSTORE_SYSUTILS_HPP
+#endif //AURORA_SYSUTILS_HPP

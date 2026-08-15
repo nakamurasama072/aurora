@@ -18,10 +18,10 @@
 #include <restapi.hpp>
 
 int main() {
-    crow::SimpleApp justore_app;
-    CrowRestAPI justore(justore_app, 12384);
+    crow::SimpleApp aurora_app;
+    CrowRestAPI aurora(aurora_app, 12384);
 
     // Run the app
-    justore.run();
+    aurora.run();
     return 0;
 }
