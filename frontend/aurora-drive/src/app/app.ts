@@ -101,6 +101,12 @@ interface StorageUsage {
   totalBytes: number;
 }
 
+interface StorageApiResponse {
+  success: boolean;
+  total: number;
+  available: number;
+}
+
 interface FileApiEntry {
   name: string;
   type: string;
@@ -271,11 +277,23 @@ export class App {
       const response = await fetch('/api/system/storage');
       if (!response.ok) throw new Error('Storage endpoint unavailable');
 
-      const data = await response.json() as StorageUsage;
-      if (!Number.isFinite(data.usedBytes) || !Number.isFinite(data.totalBytes) || data.totalBytes <= 0) {
+      const data = await response.json() as Partial<StorageApiResponse>;
+      if (
+        data.success !== true ||
+        typeof data.total !== 'number' ||
+        typeof data.available !== 'number' ||
+        !Number.isFinite(data.total) ||
+        !Number.isFinite(data.available) ||
+        data.total <= 0 ||
+        data.available < 0 ||
+        data.available > data.total
+      ) {
         throw new Error('Invalid storage response');
       }
-      this.storageUsage.set(data);
+      this.storageUsage.set({
+        usedBytes: data.total - data.available,
+        totalBytes: data.total,
+      });
       this.storageStatus.set('ready');
     } catch {
       this.storageUsage.set(null);
