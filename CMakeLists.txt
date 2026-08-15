@@ -13,4 +13,5 @@ add_executable(justore
         include/fprocess.hpp
         include/external/crow/crow_all.h
         include/restapi.hpp
+        include/sysutils.hpp
 )

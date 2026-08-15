@@ -6,6 +6,7 @@
 #define JUSTORE_RESTAPI_HPP
 
 #include <fprocess.hpp>
+#include <sysutils.hpp>
 #include <external/crow/crow_all.h>
 
 // Validate listening port of the service (range: [0, 65535])
@@ -42,6 +43,7 @@ private:
 
     // Request handlers (Add more if you wish)
     static crow::response handle_file_browse(const crow::request& request);
+    static crow::response handle_storage();
 
     // register REST API
     void register_api_routes() const;
@@ -82,13 +84,39 @@ inline crow::response CrowRestAPI::handle_file_browse(const crow::request & requ
     return {200, response_json};
 }
 
+// Handle storage requests
+inline crow::response CrowRestAPI::handle_storage() {
+    // request pattern: /api/system/storage
+    crow::json::wvalue response_json;
+    auto fspaceinfo = get_disk_space();
+    if (!fspaceinfo) {
+        std::cerr << "Errors occurred when attempting to get disk space information.\n";
+        response_json["success"] = false;
+        response_json["message"] = "Server processing failure, please check server status";
+        return {500, response_json};
+    }
+    std::cout << "Converting DiskSpace struct to JSON...\n";
+    response_json["success"] = true;
+    response_json["total"] = fspaceinfo->total;
+    response_json["available"] = fspaceinfo->available;
+    response_json["message"] = "Fetch success";
+
+    return {200, response_json};
+}
+
 // Register REST API Routes that is available
 inline void CrowRestAPI::register_api_routes() const {
+    // List files
     CROW_ROUTE(app_, "/api/files")
     ([](const crow::request& request) {
         return handle_file_browse(request);
     });
 
+    // Get disk space
+    CROW_ROUTE(app_, "/api/system/storage")
+    ([](const crow::request& request) {
+        return handle_storage();
+    });
     // Add more REST API router here...
 }
 

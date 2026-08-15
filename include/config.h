@@ -9,6 +9,7 @@
 #include <string>
 #include <filesystem>
 #include <algorithm>
+#include <cstdint>
 
 namespace fs = std::filesystem;
 // Disk Root
