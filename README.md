@@ -1,6 +1,6 @@
 # Note from author
 
-I am quite busy with academic work and FYP right now. There may not be any commits within 1 month, but be rest assure that strictly NO AI-generated code will be allowed for backends, and AI Agents are NOT ALLOWED to create Issues or Pull Requests either. This project is also a Rust-free one, you can use C/C++/Zig for the backend.
+I am quite busy with academic work and FYP right now. There may not be any commits within 1 month, but be rest assure that **AI-generated code will be strictly prohibited for backends**, and **AI Agents are NOT ALLOWED to create Issues or Pull Requests** either. This project is also a Rust-free one, you can use C/C++/Zig for the backend (in other words, backend code will not accept commits with Rust).
 
 # Aurora Drive
 
