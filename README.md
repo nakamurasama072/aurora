@@ -1,3 +1,7 @@
+# Note from author
+
+I am quite busy with academic work and FYP right now. There may not be any commits within 1 month, but be rest assure that strictly NO AI-generated code will be allowed for backends, and AI Agents are NOT ALLOWED to create Issues or Pull Requests either. This project is also a Rust-free one, you can use C/C++/Zig for the backend.
+
 # Aurora Drive
 
 Aurora Drive is an in-progress, lightweight personal cloud storage service. Its C++ backend exposes a small REST API for browsing a configured filesystem root and reporting the storage capacity of its containing filesystem. An Angular web client consumes those endpoints through a development proxy.
